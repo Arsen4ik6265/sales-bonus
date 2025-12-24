@@ -24,22 +24,28 @@ function calculateSimpleRevenue(purchase, _product) {
  * @returns {number}
  */
 function calculateBonusByProfit(index, total, seller) {
+    const { profit } = seller;
+    let bonusPercent;
+    
     // 15% — для продавца, который принёс наибольшую прибыль (первое место, index === 0)
     if (index === 0) {
-        return 0.15;
+        bonusPercent = 0.15;
     } 
     // 10% — для продавцов, которые оказались на втором и третьем месте по прибыли
     else if (index === 1 || index === 2) {
-        return 0.10;
+        bonusPercent = 0.10;
     } 
     // 0% — для продавца, который оказался на последнем месте
     else if (index === total - 1) {
-        return 0;
+        bonusPercent = 0;
     } 
     // 5% — для всех остальных продавцов
     else {
-        return 0.05;
+        bonusPercent = 0.05;
     }
+    
+    // Возвращаем сумму бонуса в рублях (процент * прибыль)
+    return profit * bonusPercent;
 }
 
 /**
@@ -159,10 +165,8 @@ function analyzeSalesData(data, options) {
         const sellerData = sellersIndex[seller.id];
         // Передаем объект продавца с данными о прибыли для расчета бонуса
         const sellerWithProfit = { ...sellerData, profit: seller.profit };
-        // Посчитайте бонус, используя функцию calculateBonus
-        const bonusPercent = calculateBonus(index, total, sellerWithProfit);
-        // Запишите в поле bonus полученное значение (в рублях)
-        seller.bonus = seller.profit * bonusPercent;
+        // Посчитайте бонус, используя функцию calculateBonus (возвращает сумму в рублях)
+        seller.bonus = calculateBonus(index, total, sellerWithProfit);
         
         // Сформируйте топ-10 проданных продуктов
         // Преобразуем seller.products_sold из объекта вида {[sku]: quantity} в массив вида [[sku, quantity], …] с помощью Object.entries()
