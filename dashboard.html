@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f6f7fb">
+  <title>Аналитика продаж — интерактивный отчёт</title>
+  <style>
+    :root{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#1b2740;background:#f6f7fb;font-synthesis:none}
+    [hidden]{display:none!important}
+    *{box-sizing:border-box}body{margin:0;min-width:300px}button,select,input{font:inherit}button{cursor:pointer}a{color:inherit}
+    .wrap{max-width:1210px;margin:0 auto;padding:30px 22px 60px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:31px}
+    .brand{font-size:14px;font-weight:850;letter-spacing:.09em;color:#4a58bb;display:flex;align-items:center;gap:10px}
+    .brandmark{width:34px;height:34px;border-radius:11px;background:linear-gradient(140deg,#5969d3,#9d79c8);display:grid;place-items:center;color:#fff;font-size:18px;letter-spacing:0}
+    .source{font-size:13px;color:#64718c;text-decoration:none;border-bottom:1px solid #cbd2e1;padding-bottom:3px}
+    .eyebrow{font-size:12px;color:#5967c5;font-weight:750;letter-spacing:.105em;text-transform:uppercase;margin:0 0 11px}
+    h1{font-size:clamp(30px,4.2vw,49px);line-height:1.12;letter-spacing:-.035em;margin:0 0 14px}
+    .intro{font-size:15px;line-height:1.7;color:#68748c;margin:0 0 28px;max-width:730px}
+    .toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;margin-bottom:23px}
+    .dataset-control{display:flex;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;font-weight:700}
+    select,input{border:1px solid #dfe5ef;background:#fff;border-radius:11px;padding:12px 14px;color:#26324b;outline:none;min-height:45px}
+    select:focus,input:focus,button:focus-visible{outline:3px solid #b4bff7;outline-offset:2px}
+    .hint{font-size:12px;color:#7b8599;line-height:1.45}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0 0 22px}
+    .tile,.panel{background:#fff;border:1px solid #e7ebf3;border-radius:17px;box-shadow:0 6px 25px rgba(25,37,69,.035)}
+    .tile{padding:22px;min-width:0}.tile-head{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:18px}
+    .tile-label{font-size:13px;font-weight:650;color:#68758a}.tile-icon{height:35px;width:35px;border-radius:10px;background:#edf0ff;color:#5b67bd;display:grid;place-items:center;font-size:18px}
+    .tile-value{font-size:clamp(21px,2.6vw,31px);letter-spacing:-.035em;font-weight:780;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tile-foot{font-size:12px;color:#8791a3;margin-top:10px;line-height:1.4}
+    .charts{display:grid;grid-template-columns:1.12fr .88fr;gap:20px;margin-bottom:22px}
+    .panel{padding:24px;min-width:0}.panel h2{font-size:18px;letter-spacing:-.018em;margin:0 0 6px}.panel-sub{font-size:12px;line-height:1.6;color:#8791a5;margin:0 0 23px}
+    .bar-list{display:flex;flex-direction:column;gap:17px}.bar-item{min-width:0}
+    .bar-heading{display:flex;justify-content:space-between;align-items:baseline;gap:9px;margin-bottom:8px}
+    .bar-name{font-size:13px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .bar-value{font-size:12px;font-weight:750;color:#52617b;white-space:nowrap;font-variant-numeric:tabular-nums}
+    .bar-track{width:100%;background:#eef1f8;border-radius:100px;height:9px;overflow:hidden}
+    .bar-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,#6471d0,#9c8aec);width:0}
+    .bar-fill.gold{background:linear-gradient(90deg,#eca95b,#f2cf79)}
+    .bar-fill.neg{background:linear-gradient(90deg,#df7890,#eeadc1)}
+    .table-panel{padding-bottom:14px}.table-tools{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:11px;margin:17px 0}
+    .table-tools input{width:260px;max-width:100%}.table-tools select{max-width:100%}
+    .scroll-table{overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid #edf0f5;border-radius:12px}
+    table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;padding:15px 16px;font-size:13px;white-space:nowrap}
+    th{color:#8995a9;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.035em;background:#f9fafe}
+    td{border-top:1px solid #f0f2f7;font-variant-numeric:tabular-nums}tr:hover td{background:#fafbff}
+    .rank{font-weight:800;color:#9ca5b7}.seller{font-weight:680;color:#27344f}.profit{color:#279474;font-weight:740}.profit.negative{color:#bc6077}
+    .footer{margin-top:21px;color:#8b94a5;font-size:12px;line-height:1.7}
+    .footer a{color:#5b69c0;text-decoration:underline;text-underline-offset:3px}
+    .status{font-size:14px;line-height:1.5;margin:0 0 20px;color:#56657c;padding:18px;border:1px dashed #cbd3e3;border-radius:12px;background:#fff}
+    .status.error{color:#a93851;border-color:#e8aaba;background:#fff7f9}
+    .pill{display:inline-block;border-radius:100px;padding:5px 10px;background:#edf0fb;color:#6673ac;font-size:11px;font-weight:750}
+    @media(max-width:920px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.charts{grid-template-columns:1fr}}
+    @media(max-width:560px){.wrap{padding:20px 13px 45px}.top{margin-bottom:26px}.source{font-size:11px}.stats{gap:10px}.tile{padding:15px 13px}.tile-head{margin-bottom:12px}.tile-label{font-size:12px}.tile-icon{width:29px;height:29px;font-size:15px}.tile-value{font-size:21px}.tile-foot{font-size:11px}.panel{padding:18px 15px}.table-panel{padding-bottom:10px}.intro{font-size:14px}.charts{gap:13px}.bar-heading{gap:4px}.bar-name{font-size:12px}.bar-value{font-size:11px}.toolbar{align-items:flex-start}.table-tools input{width:100%}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <div class="brand"><div class="brandmark" aria-hidden="true">◈</div>DATA / LAB</div>
+    <a class="source" href="./index.html">Исходная учебная версия ↗</a>
+  </header>
+  <p class="eyebrow">Учебный проект · JavaScript / аналитика</p>
+  <h1>Аналитика продаж магазина</h1>
+  <p class="intro">Интерактивный отчёт на основе учебных данных. Выручка, прибыль, рейтинг продавцов и расчёт бонусов — с использованием исходных функций проекта.</p>
+  <section class="toolbar" aria-label="Параметры отчёта">
+    <label class="dataset-control" for="dataset">Набор данных
+      <select id="dataset" aria-label="Набор данных">
+        <option value="1">Набор № 1</option><option value="2">Набор № 2</option><option value="3">Набор № 3</option>
+      </select>
+    </label>
+    <span class="pill">Демонстрационные данные</span>
+  </section>
+  <div id="status" class="status" role="status">Загрузка и обработка данных…</div>
+  <section class="stats" id="stats" aria-label="Ключевые показатели" hidden>
+    <article class="tile"><div class="tile-head"><span class="tile-label">Выручка</span><span class="tile-icon">₽</span></div><div class="tile-value" id="kpi-revenue">—</div><div class="tile-foot">Сумма по всем продавцам</div></article>
+    <article class="tile"><div class="tile-head"><span class="tile-label">Прибыль</span><span class="tile-icon">↗</span></div><div class="tile-value" id="kpi-profit">—</div><div class="tile-foot">После учёта себестоимости</div></article>
+    <article class="tile"><div class="tile-head"><span class="tile-label">Чеков</span><span class="tile-icon">▤</span></div><div class="tile-value" id="kpi-sales">—</div><div class="tile-foot">Количество записей о продажах</div></article>
+    <article class="tile"><div class="tile-head"><span class="tile-label">Бонусы</span><span class="tile-icon">✦</span></div><div class="tile-value" id="kpi-bonus">—</div><div class="tile-foot">Сумма премий по рейтингу</div></article>
+  </section>
+  <section class="charts" id="charts" hidden>
+    <article class="panel"><h2>Рейтинг продавцов</h2><p class="panel-sub">Топ-8 по прибыли · рубли</p><div class="bar-list" id="seller-chart"></div></article>
+    <article class="panel"><h2>Популярные товары</h2><p class="panel-sub">Топ-6 по проданному количеству · штуки</p><div class="bar-list" id="product-chart"></div></article>
+  </section>
+  <section class="panel table-panel" id="table-section" hidden>
+    <h2>Подробный отчёт</h2>
+    <p class="panel-sub">Все продавцы выбранного набора. Фильтруйте и сортируйте таблицу.</p>
+    <div class="table-tools">
+      <input type="search" id="seller-search" placeholder="Поиск продавца" aria-label="Поиск продавца">
+      <select id="sort" aria-label="Сортировать таблицу"><option value="profit">По прибыли</option><option value="revenue">По выручке</option><option value="bonus">По бонусам</option><option value="sales_count">По числу чеков</option></select>
+    </div>
+    <div class="scroll-table"><table><thead><tr><th>Место</th><th>Продавец</th><th>Выручка</th><th>Прибыль</th><th>Чеков</th><th>Бонус</th></tr></thead><tbody id="report-body"></tbody></table></div>
+    <p id="table-count" class="hint"></p>
+  </section>
+  <footer class="footer">Показатели вычисляются в браузере из файлов <code>data/dataset_*.js</code> с помощью функций <code>src/main.js</code> исходного учебного проекта. Отчёт дополняет оригинальную работу и не изменяет её расчётные алгоритмы. Данные и имена условные.</footer>
+</main>
+<script src="./src/main.js"></script>
+<script>
+(()=>{
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const status = $('status');
+  const params = new URLSearchParams(window.location.search);
+  const datasetNo = ['1','2','3'].includes(params.get('dataset')) ? params.get('dataset') : '1';
+  $('dataset').value=datasetNo;
+  $('dataset').addEventListener('change', e=>{
+    const url = new URL(window.location.href);
+    url.searchParams.set('dataset', e.target.value);
+    window.location.assign(url.href);
+  });
+  const rub = n => new Intl.NumberFormat('ru-RU',{style:'currency',currency:'RUB',maximumFractionDigits:0}).format(n);
+  const rubPrecise = n => new Intl.NumberFormat('ru-RU',{style:'currency',currency:'RUB',minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+  const integer = n => new Intl.NumberFormat('ru-RU').format(n);
+  const total = (arr,key) => arr.reduce((sum,item)=>sum+(Number(item[key])||0),0);
+  function el(tag, klass, value){const n=document.createElement(tag);if(klass)n.className=klass;if(value!==undefined)n.textContent=String(value);return n;}
+  function renderBars(container,rows,kind){
+    container.replaceChildren();
+    const maximum=Math.max(1,...rows.map(x=>Math.abs(x.value)));
+    for(const item of rows){
+      const root=el('div','bar-item');const header=el('div','bar-heading');
+      header.append(el('span','bar-name',item.name),el('span','bar-value',kind==='money'?rub(item.value):integer(item.value)+' шт.'));
+      const track=el('div','bar-track');const fill=el('div',`bar-fill${kind==='goods'?' gold':''}${item.value<0?' neg':''}`);
+      fill.style.width=(Math.abs(item.value)/maximum*100).toFixed(2)+'%';
+      track.append(fill);root.append(header,track);container.append(root);
+    }
+  }
+  let report=[];
+  function drawTable(){
+    const term=$('seller-search').value.trim().toLocaleLowerCase('ru');const sort=$('sort').value;
+    const rows=report.filter(r=>r.name.toLocaleLowerCase('ru').includes(term)).sort((a,b)=>b[sort]-a[sort]);
+    const body=$('report-body');body.replaceChildren();
+    rows.forEach(r=>{
+      const row=el('tr');
+      const rank=report.findIndex(x=>x.seller_id===r.seller_id)+1;
+      const vals=[rank,r.name,rubPrecise(r.revenue),rubPrecise(r.profit),integer(r.sales_count),rubPrecise(r.bonus)];
+      vals.forEach((value,i)=>row.append(el('td',i===0?'rank':i===1?'seller':i===3?`profit${r.profit<0?' negative':''}`:'',value)));
+      body.append(row);
+    });
+    $('table-count').textContent=`Показано: ${rows.length} из ${report.length} продавцов`;
+  }
+  $('seller-search').addEventListener('input',drawTable);
+  $('sort').addEventListener('change',drawTable);
+  function draw(){
+    if(typeof analyzeSalesData!=='function'||typeof calculateSimpleRevenue!=='function'||typeof calculateBonusByProfit!=='function'){
+      throw new Error('Не удалось загрузить src/main.js');
+    }
+    // Data is declared as a top-level const in the dynamically loaded classic dataset script.
+    const dataset = data;
+    report=analyzeSalesData(dataset,{calculateRevenue:calculateSimpleRevenue,calculateBonus:calculateBonusByProfit});
+    if(!Array.isArray(report))throw new Error('Функция анализа не вернула массив результатов');
+    $('kpi-revenue').textContent=rub(total(report,'revenue'));
+    $('kpi-profit').textContent=rub(total(report,'profit'));
+    $('kpi-sales').textContent=integer(total(report,'sales_count'));
+    $('kpi-bonus').textContent=rub(total(report,'bonus'));
+    const best=[...report].sort((a,b)=>b.profit-a.profit).slice(0,8).map(x=>({name:x.name,value:x.profit}));
+    renderBars($('seller-chart'),best,'money');
+    const productCounts=new Map();
+    dataset.purchase_records.forEach(record => (record.items || []).forEach(item => {
+      productCounts.set(item.sku,(productCounts.get(item.sku)||0)+(Number(item.quantity)||0));
+    }));
+    const productNames=new Map(dataset.products.map(p=>[p.sku,p.name]));
+    const bestProducts=[...productCounts].sort((a,b)=>b[1]-a[1]).slice(0,6).map(([sku,quantity])=>({name:productNames.get(sku)||sku,value:quantity}));
+    renderBars($('product-chart'),bestProducts,'goods');
+    drawTable();
+    status.hidden=true;
+    for(const id of ['stats','charts','table-section'])$(id).hidden=false;
+  }
+  const script=document.createElement('script');
+  script.src=`./data/dataset_${datasetNo}.js`;
+  script.onload=()=>{try{draw();}catch(err){showError(err);}};
+  script.onerror=()=>showError(new Error('Не удалось загрузить файл data/dataset_'+datasetNo+'.js'));
+  function showError(err){status.hidden=false;status.classList.add('error');status.textContent='Ошибка загрузки отчёта: '+(err?.message||String(err));console.error(err);}
+  document.body.append(script);
+})();
+</script>
+</body>
+</html>
